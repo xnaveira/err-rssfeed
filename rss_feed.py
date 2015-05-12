@@ -31,7 +31,7 @@ def get_item_date(rss_item):
                     rss_item.published_parsed.tm_min,
                     rss_item.published_parsed.tm_sec)
 
-DEFAULT_POLL_INTERVAL = 1800
+DEFAULT_POLL_INTERVAL = 900
 
 class RSSFeedPlugin(BotPlugin):
     min_err_version = '1.4.0' # it needs the new polling feature
@@ -81,7 +81,8 @@ class RSSFeedPlugin(BotPlugin):
     def clean_html(self, html_item):
         soup = BeautifulSoup(html_item)
         text_parts = soup.findAll(text=True)
-        text = ''.join(text_parts)
+        #text = u''.join(text_parts).encode('utf-8')
+	text = text_parts
         return text
 
     def send_news(self):
@@ -99,7 +100,12 @@ class RSSFeedPlugin(BotPlugin):
                 item_date = get_item_date(item)
                 if item_date > subscription_tss[name]:
                     subscription_tss[name] = item_date
-                    self.send(CHATROOM_PRESENCE[0], '%s News from %s:\n%s' % (item_date, name, self.clean_html(item.summary)), message_type='groupchat')
+		    print item
+		    print u''.join(item.summary)
+		    #print "Summaty dirty: {}".format(item.summary)
+		    #print "Date: {}\nName: {}\nSummary: {}\n".format(item_date, name, self.clean_html(item.summary))
+                    #self.send(CHATROOM_PRESENCE[0], '%s News from %s:\n%s' % (item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary)), message_type='groupchat'))
+                    self.send(CHATROOM_PRESENCE[0], '{} News from {}:\n{}'.format(item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary))), message_type='groupchat')
                     self.send(CHATROOM_PRESENCE[0], '\n%s\n' % str(item.link), message_type='groupchat')
                     self['subscriptions_last_ts'] = subscription_tss
                     post_canary = True
