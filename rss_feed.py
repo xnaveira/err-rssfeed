@@ -100,10 +100,11 @@ class RSSFeedPlugin(BotPlugin):
                 item_date = get_item_date(item)
                 if item_date > subscription_tss[name]:
                     subscription_tss[name] = item_date
-		    print item
-		    print u''.join(item.summary)
-		    #print "Summaty dirty: {}".format(item.summary)
-		    #print "Date: {}\nName: {}\nSummary: {}\n".format(item_date, name, self.clean_html(item.summary))
+                    print item
+                    print u''.join(item.summary)
+                    print self.clean_html(u''.join(item.summary))
+                    #print "Summaty dirty: {}".format(item.summary)
+                    #print "Date: {}\nName: {}\nSummary: {}\n".format(item_date, name, self.clean_html(item.summary))
                     #self.send(CHATROOM_PRESENCE[0], '%s News from %s:\n%s' % (item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary)), message_type='groupchat'))
                     self.send(CHATROOM_PRESENCE[0], '{} News from {}:\n{}'.format(item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary))), message_type='groupchat')
                     self.send(CHATROOM_PRESENCE[0], '\n%s\n' % str(item.link), message_type='groupchat')
