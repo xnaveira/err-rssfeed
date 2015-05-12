@@ -83,6 +83,7 @@ class RSSFeedPlugin(BotPlugin):
         #text_parts = soup.findAll(text=True)
         #text = u''.join(text_parts).encode('utf-8')
 	#text = text_parts
+        text = ''
         try:
             text = soup.get_text()
         except:
