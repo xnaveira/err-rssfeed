@@ -80,14 +80,11 @@ class RSSFeedPlugin(BotPlugin):
 
     def clean_html(self, html_item):
         soup = BeautifulSoup(html_item)
-        #text_parts = soup.findAll(text=True)
-        #text = u''.join(text_parts).encode('utf-8')
-	#text = text_parts
         text = ''
         try:
-            text = soup.get_text()
+            text = soup.getText()
         except:
-            pass
+            logging.debug('Problem cleaning html in:\n{}'.format(html_item))
         return text
 
     def send_news(self):
@@ -105,18 +102,11 @@ class RSSFeedPlugin(BotPlugin):
                 item_date = get_item_date(item)
                 if item_date > subscription_tss[name]:
                     subscription_tss[name] = item_date
-                    print item
-                    print u''.join(item.summary)
-                    print self.clean_html(u''.join(item.summary))
-                    #print "Summaty dirty: {}".format(item.summary)
-                    #print "Date: {}\nName: {}\nSummary: {}\n".format(item_date, name, self.clean_html(item.summary))
-                    #self.send(CHATROOM_PRESENCE[0], '%s News from %s:\n%s' % (item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary)), message_type='groupchat'))
-                    self.send(CHATROOM_PRESENCE[0], '{} News from {}:\n{}'.format(item_date, self.clean_html(u''.join(name)), self.clean_html(u''.join(item.summary))), message_type='groupchat')
-                    self.send(CHATROOM_PRESENCE[0], '\n%s\n' % str(item.link), message_type='groupchat')
+                    self.send(CHATROOM_PRESENCE[0], u'{} News from {}:\n{}'.format(item_date, name, self.clean_html(item.summary)), message_type='groupchat')
                     self['subscriptions_last_ts'] = subscription_tss
                     post_canary = True
             if not post_canary:
-                logging.debug('No new rss item for %s' % name)
+                logging.info('No new rss item for {}'.format(name))
 
     def activate(self):
         super(RSSFeedPlugin, self).activate()
@@ -130,7 +120,7 @@ class RSSFeedPlugin(BotPlugin):
         Add a feed: !rss add feed_url feed_nickname
         """
         if len(args) < 2:
-            return 'Please supply a feed url and a nickname'
+            return u'Please supply a feed url and a nickname'
 
         feed_url = args[0].strip()
 
@@ -140,9 +130,9 @@ class RSSFeedPlugin(BotPlugin):
         feed_name = feed_name.strip()
 
         if feed_name in self.get_subscription_names():
-            return 'this feed already exists'
+            return u'This feed already exists'
         self.add_subscription(feed_url, feed_name)
-        return 'Feed %s added as %s' % (feed_url, feed_name)
+        return u'Feed {} added as {}'.format(feed_url, feed_name)
 
 
     @botcmd
@@ -151,12 +141,12 @@ class RSSFeedPlugin(BotPlugin):
         Remove a feed: !rss remove feed_nickname
         """
         if not args:
-            return 'Please supply a feed nickname'
+            return u'Please supply a feed nickname'
         feed_name = args.strip()
         if feed_name not in self.get_subscription_names():
-            return 'Sorry.. unknown feed...'
+            return u'Sorry.. unknown feed...'
         self.remove_subscription(feed_name)
-        return 'Feed %s was successfully removed.' % feed_name
+        return u'Feed {} was successfully removed.'.format(feed_name)
 
 
     @botcmd(split_args_with=' ')
@@ -166,8 +156,7 @@ class RSSFeedPlugin(BotPlugin):
         """
         ans = ''
         for sub_name in self.get_subscriptions_last_ts():
-            ans += '%s  last updated: %s (from %s)\n' % (sub_name, self.get_subscriptions_last_ts()[sub_name], self.get_subscription_names()[sub_name])
-
+            ans += u'{}  last updated: {} (from {})\n'.format(sub_name, self.get_subscriptions_last_ts()[sub_name], self.get_subscription_names()[sub_name])
         return ans
 
 
